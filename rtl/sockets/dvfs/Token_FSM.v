@@ -20,7 +20,11 @@ module Token_FSM (
     LUT_read,  //To CSR value read from LUT wehn LUT_write[16]==1
     freq_target,  //Output of FSM, to send to LDO
     neighbors_ID,  //From CSR, specifies W/E/N/S neighbors
-    PM_network  //From CSR lists which accelerators IDs are part of PM network
+    PM_network,  //From CSR lists which accelerators IDs are part of PM network
+
+    sprint_enable,
+    sprint_tokens
+
 );
 
 
@@ -40,6 +44,13 @@ module Token_FSM (
     input [7:0] token_counter_override;
     input [19:0] neighbors_ID;
     input [31:0] PM_network;
+
+    ///////////////////////////
+    input sprint_enable;
+    input [6:0] sprint_tokens;
+    reg sprint_active;
+    ///////////////////////////
+
     //-------------Output Ports----------------------------
     output packet_out;
     output [31:0] packet_out_val;
@@ -106,11 +117,7 @@ module Token_FSM (
     assign divb = $signed(packet_in_val[16:10]) * token_counter;
 
     assign sign = (diva > divb) ? 1 : 0;  //+1 if need to receive tokens
-    assign divider = (diva > divb) ? $unsigned(
-            diva - divb
-        ) : $unsigned(
-            divb - diva
-        );  //Convert to unsigned
+    assign divider = (diva > divb) ? $unsigned(diva - divb) : $unsigned(divb - diva);  //Convert to unsigned
     assign zerozero = ($signed(packet_in_val[6:0]) - token_counter) / 2;
 
 
@@ -142,7 +149,7 @@ module Token_FSM (
                 LUT[i] <= 8'b0;
             end
             freq_target        <= 0;
-            token_counter      <= 0;
+          //  token_counter      <= 0;
             PM_network_shifted <= 0;
         end else begin
             refresh_count      <= refresh_count_next;
@@ -150,7 +157,7 @@ module Token_FSM (
             refresh_rate       <= refresh_rate_next;
             LUT                <= LUT_next;
             freq_target        <= freq_target_next;
-            token_counter      <= tokens_next;
+        //    token_counter      <= tokens_next;
             PM_network_shifted <= PM_network_shifted_next;
         end
     end  // End Of Block OUTPUT_LOGIC
@@ -192,9 +199,7 @@ module Token_FSM (
 
         if (packet_out_div==1 && packet_out_ready==1 && enable==1) begin //Send update, NoC ready
             if (packet_in == 1 && packet_in_val[31] == 0 && enable == 1)
-                tokens_next = token_counter + token_delta_div + $signed(
-                    packet_in_val[6:0]
-                );  //Apply both updates at once
+                tokens_next = token_counter + token_delta_div + $signed(packet_in_val[6:0]);  //Apply both updates at once
             else tokens_next = token_counter + token_delta_div;
             packet_out      = packet_out_div;
             packet_out_val  = packet_out_val_div;
@@ -247,4 +252,25 @@ module Token_FSM (
             freq_target_next <= LUT[0];
     end  //End Combo
 
-endmodule  // End of Module
+    always @(posedge clock) begin : SPRINT_LOGIC
+    if (reset == 1'b0) begin
+        token_counter <= 0;
+        sprint_active <= 0;
+    end else begin
+        if (sprint_enable && !sprint_active) begin
+        
+            token_counter <= token_counter + sprint_tokens; // Enable sprinting: inject tokens
+            
+            sprint_active <= 1;
+        end
+        else if (!sprint_enable && sprint_active) begin
+            token_counter <= token_counter - sprint_tokens; // Disable sprinting: remove tokens
+            sprint_active <= 0;
+        end
+        else begin
+            token_counter <= tokens_next; // Regular token updates from BlitzCoin
+        end
+    end
+end
+
+endmodule 

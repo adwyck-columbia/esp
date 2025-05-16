@@ -11,8 +11,8 @@ module divider_unit (
     packet_out_addr,
     sign,
     freeze,
-    zerozero,
-    token_delta
+    zedeltrozero,
+    token_a
 );
     input [12:0] divider;
     input [6:0] divisor;

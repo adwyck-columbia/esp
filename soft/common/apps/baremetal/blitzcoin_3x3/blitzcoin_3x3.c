@@ -260,11 +260,27 @@ int main(int argc, char *argv[])
 
     cycles_start = get_counter();
 
-    espdev = &espdevs[0];
-    write_config1(espdev, activity_const, random_rate_const_0, 0,
-                  0); // For NVDLA the activity flag is toggled manually
+    // espdev = &espdevs[0];
+    // write_config1(espdev, activity_const, random_rate_const_0, 0,
+    //               0); // For NVDLA the activity flag is toggled manually
+    // run_nvdla(espdev, dev_n0, gold_nvdla, mem_n0, 0);
+    // write_config1(espdev, 0, random_rate_const_0, 0, 0);
+
+///////////////////////////////////////////////////////////////////////////////////////////
+    // Enable sprinting on VIT0 
+    struct esp_device *sprint_tile = &espdevs[2]; //SPRINT
+   write_sprint(sprint_tile, 1, 15); //SPRINT
+
+    // Start NVDLA normally
+    espdev = &espdevs[0]; // NVDLA tile
+    write_config1(espdev, activity_const, random_rate_const_0, 0, 0); // For NVDLA the activity flag is toggled manually
     run_nvdla(espdev, dev_n0, gold_nvdla, mem_n0, 0);
+
+    // Disable sprinting on FFT0 
+    write_sprint(sprint_tile, 0, 15); //SPRINT
     write_config1(espdev, 0, random_rate_const_0, 0, 0);
+///////////////////////////////////////////////////////////////////////////////////////////
+
 
     #ifdef DEBUG
     printf("NVDLA finished, address=0x%x\n", dev_n0->addr);
@@ -367,3 +383,10 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+
+
+// Multiple tiles one at time
+// Multiple sprints at same time
+// Negative token assessment
+// Disable sprinting after activity is over for all

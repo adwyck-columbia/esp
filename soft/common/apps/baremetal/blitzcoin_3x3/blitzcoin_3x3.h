@@ -39,8 +39,23 @@
     #define OFFSET_LUT_READ    (OFFSET_TOKENS_NEXT + WIDTH_TOKENS_NEXT)
     #define WIDTH_LUT_READ     8
 
+    //////////////////////////////////////////////// Macro deficnation
+
+    #define OFFSET_SPRINT_ENABLE   20
+    #define WIDTH_SPRINT_ENABLE     1
+
+    #define OFFSET_SPRINT_TOKENS   21
+    #define WIDTH_SPRINT_TOKENS     7
+
+
+    #define SPRINT_ENABLE_MASK (1 << OFFSET_SPRINT_ENABLE)
+    #define SPRINT_TOKENS_MASK (0x7F << OFFSET_SPRINT_TOKENS)
+
+
+    ////////////////////////////////////////////////
+
     // CSR register offsets
-    #define TOKEN_PM_CONFIG0_REG 0x0
+    #define TOKEN_PM_CONFIG0_REG 0x0  // 4*8
     #define TOKEN_PM_CONFIG1_REG 0x4
     #define TOKEN_PM_CONFIG2_REG 0x8
     #define TOKEN_PM_CONFIG3_REG 0xc
@@ -78,7 +93,7 @@
 
     #define ACC_BASE_ADDR             0x60010000
     #define ACC_THIRD_PARTY_BASE_ADDR 0x60400000
-    #define ACC_OFFSET                0x100
+    #define ACC_OFFSET                0x200
     // Set accelerator ID (ACC_TILE_ID) according to the position of the accelerator in the
     // SoC. Acc IDs increment from left to right and from top to bottom.
     // Running for config
@@ -186,7 +201,7 @@ unsigned token_counter_override[N_ACC];
 
 // Set of tests of the bare-metal app.
 // Uncomment the tests that you want to execute
-#define TEST_0 0
+//#define TEST_0 0
 //// basic test for coin exchange between 2 tiles
 #define TEST_1 1
 //// Test covering coin exchange for 6 tiles with Blitzcoin running parallel workloads on FFT,
@@ -266,6 +281,24 @@ void write_config3(struct esp_device *espdev, unsigned pm_network)
 {
     iowrite32(espdev, TOKEN_PM_CONFIG3_REG, pm_network);
 }
+
+/////////////////////////////////// 
+void write_sprint(struct esp_device *espdev, unsigned sprint_enable, unsigned sprint_tokens)
+{
+    unsigned val, neighbors_existing;
+
+    // Read existing neighbors configuration
+    neighbors_existing = ioread32(espdev, TOKEN_PM_CONFIG2_REG) & 0xFFFFF; 
+
+    val = neighbors_existing | 
+          ((sprint_enable & 0x1) << OFFSET_SPRINT_ENABLE) |
+          ((sprint_tokens & 0x7F) << OFFSET_SPRINT_TOKENS);
+
+    iowrite32(espdev, TOKEN_PM_CONFIG2_REG, val);
+}
+
+
+///////////////////////////////////
 
 void wait_for_token_next(struct esp_device *espdev, unsigned tokens_next_expected)
 {
