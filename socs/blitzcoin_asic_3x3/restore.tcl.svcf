@@ -85,11 +85,14 @@ group insert \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration[3:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_done}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[3:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[15:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_active}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[3:0]}]} ]
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[15:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_offset[5:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.percent_threshold[6:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(2):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.cycle_threshold[9:0]}]} ] 
 group using {Tile 3}
 group set -overlay 0
 group set -comment {}
@@ -131,11 +134,15 @@ group insert \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration[3:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_done}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[3:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[15:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_active}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[3:0]}]} ]
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[15:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_offset[5:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.percent_threshold[6:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(3):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.cycle_threshold[9:0]}]} ] 
+
 group using {Group 3}
 group set -overlay 0
 group set -comment {}
@@ -182,11 +189,14 @@ group insert \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration[3:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_done}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[3:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[15:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_active}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[3:0]}]} ]
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[15:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_offset[5:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.percent_threshold[6:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(5):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.cycle_threshold[9:0]}]} ] 
 group using {Tile 6}
 group set -overlay 0
 group set -comment {}
@@ -228,11 +238,14 @@ group insert \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration[3:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_done}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[3:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[15:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_active}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[3:0]}]} ]
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[15:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_offset[5:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.percent_threshold[6:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(6):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.cycle_threshold[9:0]}]} ] 
 group using {Tile 7}
 group set -overlay 0
 group set -comment {}
@@ -274,11 +287,14 @@ group insert \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration[3:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_done}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[3:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[15:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_active}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[3:0]}]} ]
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[15:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_offset[5:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.percent_threshold[6:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(7):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.cycle_threshold[9:0]}]} ] 
 group using {Tile 8}
 group set -overlay 0
 group set -comment {}
@@ -320,11 +336,14 @@ group insert \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration[3:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_done}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[3:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_duration_counter[15:0]}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_counter_done}]} ] \
     [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_active}]} ] \
-    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[3:0]}]} ]
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.d_sprint_counter[15:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.sprint_offset[5:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.percent_threshold[6:0]}]} ] \
+    [subst  {simulator::[format {:top_1:chip_i:chip_i:router_gen(8):noc_domain_socket_i:token_pm_gen:token_pm_i:Token_FSM_i.cycle_threshold[9:0]}]} ] 
 
 #
 # Mnemonic Maps

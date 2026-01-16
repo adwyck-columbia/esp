@@ -47,7 +47,7 @@
     #define OFFSET_SPRINT_TOKENS   21
     #define WIDTH_SPRINT_TOKENS     7
 
-    ////sprint duration
+    //sprint duration
     #define OFFSET_SPRINT_DURATION 28 //token_pm2 used till 27 (21-27), 28th bit is free
     #define WIDTH_SPRINT_DURATION 4   //there are 4 bits in total in token_pm2 that can be used for sprint duration counter
 
@@ -302,6 +302,63 @@ void write_sprint(struct esp_device *espdev, unsigned sprint_enable, unsigned sp
 
     iowrite32(espdev, TOKEN_PM_CONFIG2_REG, val);
 }
+
+// -----------------------------
+// Blitzcoin NoC (router) CSRs -- pranavi
+// -----------------------------
+// NOTE: These are written to the *router* CSR space (noc_domain_socket CSRs),
+// not the token_pm CSR space.
+
+// addr[6:2] = 20 => byte offset = 20 << 2 = 0x50
+// #define SPRINT_CFG_REG  (16 << 2) //20 * 4 
+
+// // [0] sprint_enable
+// // [7:1] sprint_tokens (7 bits)
+// // [23:8] sprint_duration (16 bits)
+// static inline unsigned encode_sprint_cfg(unsigned sprint_duration,
+//                                         unsigned sprint_tokens,
+//                                         unsigned sprint_enable)
+// {
+//     return ((sprint_enable  & 0x1)    << 0) |
+//            ((sprint_tokens  & 0x7F)   << 1) |
+//            ((sprint_duration & 0xFFFF) << 8);
+// }
+
+// static inline void write_sprint_cfg(struct esp_device *router_dev,
+//                                     unsigned sprint_duration,
+//                                     unsigned sprint_tokens,
+//                                     unsigned sprint_enable)
+// {
+//     iowrite32(router_dev, SPRINT_CFG_REG,
+//               encode_sprint_cfg(sprint_duration, sprint_tokens, sprint_enable));
+// }
+
+
+// // addr[6:2] = 21 => byte offset = 21 << 2 = 0x54
+// #define THERMAL_CFG_REG (31 << 2)
+
+// // THERMAL_CFG layout (23 bits total):
+// // [9:0]   cycle_threshold (10 bits)
+// // [16:10] percent_threshold (7 bits)
+// // [22:17] sprint_offset (6 bits)
+// static inline unsigned encode_thermal_cfg(unsigned sprint_offset,
+//                                          unsigned percent_threshold,
+//                                          unsigned cycle_threshold)
+// {
+//     return ((cycle_threshold     & 0x3FF) << 0)  |
+//            ((percent_threshold   & 0x7F)  << 10) |
+//            ((sprint_offset       & 0x3F)  << 17);
+// }
+
+// static inline void write_thermal_cfg(struct esp_device *router_dev,
+//                                     unsigned sprint_offset,
+//                                     unsigned percent_threshold,
+//                                     unsigned cycle_threshold)
+// {
+//     iowrite32(router_dev, THERMAL_CFG_REG,
+//               encode_thermal_cfg(sprint_offset, percent_threshold, cycle_threshold));
+// }
+
 
 
 ///////////////////////////////////

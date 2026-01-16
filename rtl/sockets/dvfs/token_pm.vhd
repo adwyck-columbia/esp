@@ -56,6 +56,10 @@ entity token_pm is
     noc5_stop_in       : out std_ulogic;
     -- LDO switch control
     acc_clk            : out std_ulogic;
+    --sprint and thermal
+    --sprint_cfg         : in std_logic_vector(23 downto 0); -- pranavi
+    --thermal_cfg       : in std_logic_vector(22 downto 0); -- pranavi
+
     LDOCTRL			   : out std_logic_vector(7 downto 0)
   );
 
@@ -89,8 +93,12 @@ component Token_FSM
     neighbors_ID           : in  std_logic_vector(19 downto 0);
     PM_network             : in  std_logic_vector(31 downto 0);
     sprint_enable          : in  std_logic;
-    sprint_tokens          : in  std_logic_vector(6 downto 0);
-    sprint_duration        : in std_logic_vector(3 downto 0) -- added sprint_duration
+    sprint_tokens          : in  std_logic_vector(6 downto 0); -- pranavi
+    --sprint_duration        : in  std_logic_vector(15 downto 0); -- pranavi
+    sprint_duration        : in  std_logic_vector(3 downto 0)
+    --cycle_threshold   : in std_logic_vector(9 downto 0); -- pranavi
+    --percent_threshold : in std_logic_vector(6 downto 0); --pranavi
+    --sprint_offset     : in std_logic_vector(5 downto 0) -- pranavi
   );
 end component;
 
@@ -137,9 +145,14 @@ end component;
   signal acc_activity_1, acc_activity_2, acc_activity_3  : std_ulogic;
 
 ----------------------------------------------------------------------- new sigs
-signal sprint_enable   : std_logic;
-signal sprint_tokens   : std_logic_vector(6 downto 0);
-signal sprint_duration : std_logic_vector(3 downto 0);  -- added sprint_duration
+  signal sprint_enable   : std_logic; -- pranavi
+  signal sprint_tokens   : std_logic_vector(6 downto 0); -- pranavi
+  signal sprint_duration : std_logic_vector(3 downto 0);
+  --signal sprint_duration : std_logic_vector(15 downto 0);  -- added sprint_duration -- pranavi
+
+  -- signal cycle_threshold   : std_logic_vector(9 downto 0); -- pranavi
+  -- signal percent_threshold : std_logic_vector(6 downto 0); -- pranavi
+  -- signal sprint_offset     : std_logic_vector(5 downto 0); -- pranavi
 
 
 ----------------------------------------------------------------------
@@ -180,6 +193,14 @@ begin
   sprint_enable <= pm_config(2)(20);
   sprint_tokens <= pm_config(2)(27 downto 21);
   sprint_duration <= pm_config(2)(31 downto 28);  -- added sprint_duration
+
+  -- sprint_enable   <= sprint_cfg(0); -- pranavi
+  -- sprint_tokens   <= sprint_cfg(7 downto 1); -- pranavi
+  -- sprint_duration <= sprint_cfg(23 downto 8);  -- added sprint_duration -- pranavi
+
+  -- cycle_threshold   <= thermal_cfg(9 downto 0); -- pranavi
+  -- percent_threshold <= thermal_cfg(16 downto 10); -- pranavi
+  -- sprint_offset     <= thermal_cfg(22 downto 17); -- pranavi
 
   ----------------------------------------------------------------
 
@@ -265,9 +286,13 @@ begin
       token_counter_override => pm_config(1)(31 downto 24),  -- token_counter_override
       neighbors_ID           => pm_config(2)(19 downto 0),  -- neighbors_ID 
       
-      sprint_enable          => sprint_enable,       -- new signal
+      sprint_enable          => sprint_enable,       -- new signal 
       sprint_tokens          => sprint_tokens,
       sprint_duration        => sprint_duration,     -- new mapping
+
+      -- cycle_threshold       => cycle_threshold, -- pranavi
+      -- percent_threshold     => percent_threshold, -- pranavi
+      -- sprint_offset         => sprint_offset, -- pranavi
 
       PM_network             => pm_config(3)(31 downto 0),  -- PM_network
       tokens_next            => pm_status(0)(6 downto 0),   -- tokens_next
