@@ -245,8 +245,8 @@ int main(int argc, char *argv[])
     // write_thermal_cfg(router_tile_1, 20, 40, 20);
     // printf("THERMAL_CFG t0 = 0x%x\n", ioread32(router_tile_1, THERMAL_CFG_REG));
     struct esp_device *sprint_tile_1 = &espdevs[1]; //SPRINT
-    write_config1(espdev, activity_const, random_rate_const, 0, 0); 
     write_sprint(sprint_tile_1, 1, 5, 3); //SPRINT_1
+    write_config1(espdev, activity_const, random_rate_const, 0, 0); 
     #ifdef DEBUG
     printf("Started F0\n");
     #endif
@@ -255,8 +255,8 @@ int main(int argc, char *argv[])
     //struct esp_device *router_tile_2 = &routerdevs[2]; // pranavi
     //write_sprint_cfg(router_tile_2, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
     struct esp_device *sprint_tile_2 = &espdevs[2]; //SPRINT
-    write_config1(espdev, activity_const, random_rate_const, 0, 0);
     write_sprint(sprint_tile_2, 1, 5, 3); //SPRINT_2
+    write_config1(espdev, activity_const, random_rate_const, 0, 0);
     #ifdef DEBUG
     printf("Started V0\n");
     #endif
@@ -265,8 +265,8 @@ int main(int argc, char *argv[])
     //struct esp_device *router_tile_3 = &routerdevs[3]; // pranavi
     //write_sprint_cfg(router_tile_3, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
     struct esp_device *sprint_tile_3 = &espdevs[3]; //SPRINT
-    write_config1(espdev, activity_const, random_rate_const, 0, 0);
     write_sprint(sprint_tile_3, 1, 5, 3); //SPRINT_3
+    write_config1(espdev, activity_const, random_rate_const, 0, 0);
     #ifdef DEBUG
     printf("Started F1\n");
     #endif
@@ -275,8 +275,8 @@ int main(int argc, char *argv[])
     //struct esp_device *router_tile_4 = &routerdevs[4]; // pranavi
    // write_sprint_cfg(router_tile_4, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
     struct esp_device *sprint_tile_4 = &espdevs[4]; //SPRINT
-    write_config1(espdev, activity_const, random_rate_const, 0, 0);
     write_sprint(sprint_tile_4, 1, 5, 3); //SPRINT_4
+    write_config1(espdev, activity_const, random_rate_const, 0, 0);
     #ifdef DEBUG
     printf("Started V1\n");
     #endif
@@ -285,8 +285,8 @@ int main(int argc, char *argv[])
     //struct esp_device *router_tile_5 = &routerdevs[5]; // pranavi
     //write_sprint_cfg(router_tile_5, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
     struct esp_device *sprint_tile_5 = &espdevs[5]; //SPRINT
-    write_config1(espdev, activity_const, random_rate_const, 0, 0);
     write_sprint(sprint_tile_5, 1, 5, 3); //SPRINT_5
+    write_config1(espdev, activity_const, random_rate_const, 0, 0);
     #ifdef DEBUG
     printf("Started F2\n");
     #endif
@@ -311,11 +311,12 @@ int main(int argc, char *argv[])
     // printf("THERMAL_CFG t0 = 0x%x\n", ioread32(router_tile_0, THERMAL_CFG_REG));
     struct esp_device *sprint_tile_0 = &espdevs[0]; //SPRINT
    // write_sprint(sprint_tile_0, 1, 5, 15); //SPRINT
+    write_sprint(sprint_tile_0, 1, 5, 3); //SPRINT_6
     write_config1(espdev, activity_const, random_rate_const_0, 0, 0); // For NVDLA the activity flag is toggled manually
     run_nvdla(espdev, dev_n0, gold_nvdla, mem_n0, 0);
 
     // Disable sprinting on FFT0 
-    write_sprint(sprint_tile_0, 1, 5, 3); //SPRINT_6
+   
     write_config1(espdev, 0, random_rate_const_0, 0, 0);
 ///////////////////////////////////////////////////////////////////////////////////////////
 
