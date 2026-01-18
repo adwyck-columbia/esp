@@ -255,8 +255,9 @@ int main(int argc, char *argv[])
     //struct esp_device *router_tile_2 = &routerdevs[2]; // pranavi
     //write_sprint_cfg(router_tile_2, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
     struct esp_device *sprint_tile_2 = &espdevs[2]; //SPRINT
-    write_config1(espdev, activity_const, random_rate_const, 0, 0);
     write_sprint(sprint_tile_2, 1, 5, 15); //SPRINT_2
+    write_config1(espdev, activity_const, random_rate_const, 0, 0);
+    
     #ifdef DEBUG
     printf("Started V0\n");
     #endif
