@@ -151,7 +151,7 @@ const unsigned refresh_rate_min_const[N_ACC] = {
     109, 113}; // Choosing slighly different and co-prime refresh rates for the different tiles can
                // help avoiding collisions and simplifies convergence
 const unsigned refresh_rate_max_const[N_ACC] = {97, 101, 103, 107, 109, 113};
-const unsigned total_tokens                  = 30; // Total tokens in system (Original 30)
+const unsigned total_tokens                  = 15; // Total tokens in system (Original 30)
 const unsigned total_tokens_ini              = total_tokens;
 
     #define LUT_SIZE 64

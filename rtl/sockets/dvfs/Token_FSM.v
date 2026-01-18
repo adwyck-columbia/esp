@@ -202,7 +202,7 @@ module Token_FSM (
     end  // End Of Block OUTPUT_LOGIC
 
     // TEMPORARY VARIABLE FOR CLAMPING LOGIC
-    reg signed [8:0] tokens_next_calc;
+   // reg signed [8:0] tokens_next_calc;
 
     always @* begin : COMBO
         //Combinational output
@@ -212,7 +212,7 @@ module Token_FSM (
         refresh_count_next      = refresh_count + 1;
         refresh_rate_next       = refresh_rate;
         start_divider           = 0;
-        // tokens_next             = token_counter; // REPLACED BY CALC LOGIC BELOW
+        tokens_next             = token_counter; // REPLACED BY CALC LOGIC BELOW
         packet_out              = 0;
         packet_out_val          = 0;
         packet_out_addr         = 0;
@@ -220,10 +220,10 @@ module Token_FSM (
         freeze_div              = 0;
 
         // Default calc value
-        tokens_next_calc        = token_counter;
+       // tokens_next_calc        = token_counter;
 
         if (packet_in == 1 && packet_in_val[31] == 0 && enable == 1) begin  //Received update
-            tokens_next_calc = token_counter + $signed(packet_in_val[6:0]);
+            tokens_next = token_counter + $signed(packet_in_val[6:0]);
             if (packet_in_val[6:0] == 0) begin
                 if ((refresh_rate + refresh_rate >> 1) <= refresh_rate_max)
                     refresh_rate_next = refresh_rate + refresh_rate >> 1;  //x1.5
@@ -244,9 +244,8 @@ module Token_FSM (
 
         if (packet_out_div==1 && packet_out_ready==1 && enable==1) begin //Send update, NoC ready
             if (packet_in == 1 && packet_in_val[31] == 0 && enable == 1)
-                tokens_next_calc = token_counter + token_delta_div + $signed(packet_in_val[6:0]);  //Apply both updates at once
-            else 
-                tokens_next_calc = token_counter + token_delta_div;
+                tokens_next = token_counter + token_delta_div + $signed(packet_in_val[6:0]);  //Apply both updates at once
+            else tokens_next = token_counter + token_delta_div;
             
             packet_out      = packet_out_div;
             packet_out_val  = packet_out_val_div;
@@ -290,15 +289,15 @@ module Token_FSM (
         LUT_next <= LUT;
         if (LUT_write[17] == 1) LUT_next[LUT_write[7:0]] <= LUT_write[15:8];
 
-        if (token_counter_override[7] == 1) tokens_next_calc = $signed(token_counter_override[6:0]);
+        if (token_counter_override[7] == 1) tokens_next = token_counter_override[6:0];
 
-        // CLAMPING LOGIC FOR tokens_next
-        if (tokens_next_calc > 63)
-            tokens_next = 6'd63;
-        else if (tokens_next_calc < -64)
-            tokens_next = -7'sd64;
-        else
-            tokens_next = tokens_next_calc[6:0];
+        // // CLAMPING LOGIC FOR tokens_next
+        // if (tokens_next_calc > 63)
+        //     tokens_next = 6'd63;
+        // else if (tokens_next_calc < -64)
+        //     tokens_next = -7'sd64;
+        // else
+        //     tokens_next = tokens_next_calc[6:0];
 
 
         if (tokens_next[6] == 0)  //posivite
@@ -316,8 +315,8 @@ module Token_FSM (
     reg [15:0] d_sprint_counter; //ORI: [3:0] -- Adwyck
 
     // Temp variables for clamping in sequential logic
-    reg signed [8:0] seq_calc_sprint_add;
-    reg signed [8:0] seq_calc_sprint_sub;
+    // reg signed [8:0] seq_calc_sprint_add;
+    // reg signed [8:0] seq_calc_sprint_sub;
 
     always @(posedge clock) begin : SPRINT_DESPRINT_LOGIC
         if (reset == 1'b0) begin
@@ -335,20 +334,12 @@ module Token_FSM (
         end else begin
         // Default behavior: normal BlitzCoin token updates
             token_counter <= tokens_next;
-            
-            // Pre-calculate sums for clamping
-            seq_calc_sprint_add = tokens_next + sprint_tokens;
-            seq_calc_sprint_sub = tokens_next - sprint_tokens;
 
             if (sprint_enable && activity && !sprint_active && !counter_done && !sprint_done) begin
-            // start sprint
-                // Clamp add
-                if (seq_calc_sprint_add > 63) token_counter <= 6'd63;
-                else if (seq_calc_sprint_add < -64) token_counter <= -7'sd64;
-                else token_counter <= seq_calc_sprint_add[6:0];
 
+                token_counter <= tokens_next + sprint_tokens;
                 sprint_active           <= 1;
-                sprint_duration_counter <= ({12'b0, sprint_duration} << 9);//sprint_duration; ({12'b0, sprint_duration} << 9); //pranavi
+                sprint_duration_counter <= ({8'b0, sprint_duration} << 13);//sprint_duration; ({12'b0, sprint_duration} << 9); //pranavi
                 //counter_done            <= 0;
                 // sprint_done             <= 0; 
                // d_sprint_done             <= 0; //Problem
@@ -362,25 +353,17 @@ module Token_FSM (
                 end
             end 
             else if (sprint_enable && sprint_active && counter_done && !sprint_done) begin
-            // Sprint finished - return tokens to normal
-                // Clamp sub
-                if (seq_calc_sprint_sub > 63) token_counter <= 6'd63;
-                else if (seq_calc_sprint_sub < -64) token_counter <= -7'sd64;
-                else token_counter <= seq_calc_sprint_sub[6:0];
-                
+ 
+                token_counter <= tokens_next - sprint_tokens;
                 sprint_done   <= 1;
                 sprint_active <= 0;
                 counter_done  <= 0;
             end
             else if (sprint_enable && sprint_done && !d_sprint_active && !d_sprint_done && !d_counter_done) begin
-            // Start de-sprint
-                // Clamp sub
-                if (seq_calc_sprint_sub > 63) token_counter <= 6'd63;
-                else if (seq_calc_sprint_sub < -64) token_counter <= -7'sd64;
-                else token_counter <= seq_calc_sprint_sub[6:0];
-
+      
+                token_counter <= tokens_next - sprint_tokens;
                 d_sprint_active  <= 1;
-                d_sprint_counter <= ({12'b0, sprint_duration} << 9);//sprint_duration; //({12'b0, sprint_duration} << 9); //pranavi
+                d_sprint_counter <= ({8'b0, sprint_duration} << 13);//sprint_duration; //({12'b0, sprint_duration} << 9); //pranavi
               // d_counter_done   <= 0;
               //  d_sprint_done    <= 0;
             end 
@@ -395,11 +378,8 @@ module Token_FSM (
             end 
             else if (sprint_enable && d_sprint_active && d_counter_done && !d_sprint_done) begin
                 // De-sprint finished - restore to normal
-                // Clamp add
-                if (seq_calc_sprint_add > 63) token_counter <= 6'd63;
-                else if (seq_calc_sprint_add < -64) token_counter <= -7'sd64;
-                else token_counter <= seq_calc_sprint_add[6:0];
-                
+        
+                token_counter <= tokens_next + sprint_tokens;
                 d_sprint_done   <= 1;
                 d_sprint_active <= 0;
                 d_counter_done  <= 0;
