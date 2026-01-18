@@ -339,7 +339,7 @@ module Token_FSM (
 
                 token_counter <= tokens_next + sprint_tokens;
                 sprint_active           <= 1;
-                sprint_duration_counter <= ({8'b0, sprint_duration} << 13);//sprint_duration; ({12'b0, sprint_duration} << 9); //pranavi
+                sprint_duration_counter <= ({12'b0, sprint_duration} << 7);//sprint_duration; ({12'b0, sprint_duration} << 9); //pranavi
                 //counter_done            <= 0;
                 // sprint_done             <= 0; 
                // d_sprint_done             <= 0; //Problem
@@ -363,7 +363,7 @@ module Token_FSM (
       
                 token_counter <= tokens_next - sprint_tokens;
                 d_sprint_active  <= 1;
-                d_sprint_counter <= ({8'b0, sprint_duration} << 13);//sprint_duration; //({12'b0, sprint_duration} << 9); //pranavi
+                d_sprint_counter <= ({12'b0, sprint_duration} << 7);//sprint_duration; //({12'b0, sprint_duration} << 9); //pranavi
               // d_counter_done   <= 0;
               //  d_sprint_done    <= 0;
             end 
