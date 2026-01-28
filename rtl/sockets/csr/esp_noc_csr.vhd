@@ -61,6 +61,12 @@ architecture rtl of esp_noc_csr is
 
     constant DEFAULT_TILE_ID : std_logic_vector(7 downto 0) := (others => '0');
 
+  -- Sprint configuration default (24 bits: enable, tokens, duration)
+  constant DEFAULT_SPRINT_CFG : std_logic_vector(23 downto 0) := (others => '0');
+
+  -- Thermal configuration default (23 bits: cycle_threshold, percent_threshold, sprint_offset)
+  constant DEFAULT_THERMAL_CFG : std_logic_vector(22 downto 0) := (others => '0');
+
   function dco_reset_config
     return std_logic_vector is
   begin
@@ -75,8 +81,15 @@ architecture rtl of esp_noc_csr is
 
   constant RESET_DCO_CFG : std_logic_vector(23 downto 0) := dco_reset_config;
 
+  -- DEFAULT_CONFIG layout (91 bits total):
+  -- [7:0]   DEFAULT_TILE_ID (8 bits)
+  -- [10:8]  DEFAULT_PAD_CFG (3 bits)
+  -- [34:11] RESET_DCO_CFG (24 bits)
+  -- [43:35] DEFAULT_LDO_CFG (9 bits)
+  -- [67:44] DEFAULT_SPRINT_CFG (24 bits)
+  -- [90:68] DEFAULT_THERMAL_CFG (23 bits)
   constant DEFAULT_CONFIG : std_logic_vector(ESP_NOC_CSR_WIDTH - 1 downto 0) :=
-   DEFAULT_LDO_CFG & RESET_DCO_CFG & DEFAULT_PAD_CFG & DEFAULT_TILE_ID;
+   DEFAULT_THERMAL_CFG & DEFAULT_SPRINT_CFG & DEFAULT_LDO_CFG & RESET_DCO_CFG & DEFAULT_PAD_CFG & DEFAULT_TILE_ID;
 
   signal csr_addr : integer range 0 to 31;
 

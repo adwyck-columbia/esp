@@ -700,6 +700,97 @@ void write_config3(struct esp_device *espdev, unsigned pm_network)
     iowrite32(espdev, TOKEN_PM_CONFIG3_REG, pm_network);
 }
 
+// -----------------------------
+// CSR Read Functions for Verification
+// -----------------------------
+
+// Read token PM config registers
+static inline unsigned read_config0(struct esp_device *espdev)
+{
+    return ioread32(espdev, TOKEN_PM_CONFIG0_REG);
+}
+
+static inline unsigned read_config1(struct esp_device *espdev)
+{
+    return ioread32(espdev, TOKEN_PM_CONFIG1_REG);
+}
+
+static inline unsigned read_config2(struct esp_device *espdev)
+{
+    return ioread32(espdev, TOKEN_PM_CONFIG2_REG);
+}
+
+static inline unsigned read_config3(struct esp_device *espdev)
+{
+    return ioread32(espdev, TOKEN_PM_CONFIG3_REG);
+}
+
+// Read token PM status register
+static inline unsigned read_status0(struct esp_device *espdev)
+{
+    return ioread32(espdev, TOKEN_PM_STATUS0_REG);
+}
+
+// Note: read_sprint_cfg and read_thermal_cfg are defined later after SPRINT_CFG_REG/THERMAL_CFG_REG
+
+// Verification helper: read back and print CSR values
+void verify_config0(struct esp_device *espdev, const char *tile_name, 
+                    unsigned expected_enable, unsigned expected_max_tokens,
+                    unsigned expected_refresh_rate_min, unsigned expected_refresh_rate_max)
+{
+    unsigned read_val = read_config0(espdev);
+    unsigned read_enable = (read_val >> OFFSET_ENABLE) & ((1 << WIDTH_ENABLE) - 1);
+    unsigned read_max_tokens = (read_val >> OFFSET_MAX_TOKENS) & ((1 << WIDTH_MAX_TOKENS) - 1);
+    unsigned read_refresh_rate_min = (read_val >> OFFSET_REFRESH_RATE_MIN) & ((1 << WIDTH_REFRESH_RATE_MIN) - 1);
+    unsigned read_refresh_rate_max = (read_val >> OFFSET_REFRESH_RATE_MAX) & ((1 << WIDTH_REFRESH_RATE_MAX) - 1);
+    
+    printf("  %s CONFIG0: 0x%08x\n", tile_name, read_val);
+    printf("    enable: %u (expected %u) %s\n", read_enable, expected_enable, 
+           (read_enable == expected_enable) ? "OK" : "FAIL");
+    printf("    max_tokens: %u (expected %u) %s\n", read_max_tokens, expected_max_tokens,
+           (read_max_tokens == expected_max_tokens) ? "OK" : "FAIL");
+    printf("    refresh_rate_min: %u (expected %u) %s\n", read_refresh_rate_min, expected_refresh_rate_min,
+           (read_refresh_rate_min == expected_refresh_rate_min) ? "OK" : "FAIL");
+    printf("    refresh_rate_max: %u (expected %u) %s\n", read_refresh_rate_max, expected_refresh_rate_max,
+           (read_refresh_rate_max == expected_refresh_rate_max) ? "OK" : "FAIL");
+}
+
+void verify_config2(struct esp_device *espdev, const char *tile_name, unsigned expected_neighbors_id)
+{
+    unsigned read_val = read_config2(espdev);
+    unsigned read_neighbors = read_val & ((1 << WIDTH_NEIGHBORS_ID) - 1);
+    
+    printf("  %s CONFIG2: 0x%08x\n", tile_name, read_val);
+    printf("    neighbors_id: 0x%05x (expected 0x%05x) %s\n", read_neighbors, expected_neighbors_id,
+           (read_neighbors == expected_neighbors_id) ? "OK" : "FAIL");
+}
+
+// Note: verify_sprint_cfg, verify_thermal_cfg, dump_token_pm_csrs, dump_router_csrs
+// are defined later after read_sprint_cfg and read_thermal_cfg
+
+// -----------------------------
+// Example Usage for CSR Verification:
+// -----------------------------
+// 
+// After writing any CSR, you can verify it was written correctly:
+//
+// 1. For Token PM CSRs (espdevs):
+//    verify_config0(&espdevs[i], "Tile0", enable, max_tokens, refresh_min, refresh_max);
+//    verify_config2(&espdevs[i], "Tile0", neighbors_id);
+//    dump_token_pm_csrs(&espdevs[i], "Tile0");  // Print all values
+//
+// 2. For Router/NoC CSRs (routerdevs):
+//    write_sprint_cfg(&routerdevs[i], duration, tokens, enable);
+//    verify_sprint_cfg(&routerdevs[i], "Tile0", enable, tokens, duration);
+//    
+//    write_thermal_cfg(&routerdevs[i], sprint_offset, percent_thresh, cycle_thresh);
+//    verify_thermal_cfg(&routerdevs[i], "Tile0", cycle_thresh, percent_thresh, sprint_offset);
+//    dump_router_csrs(&routerdevs[i], "Tile0");  // Print all values
+//
+// 3. Simple read-back (no verification):
+//    unsigned val = read_config0(&espdevs[i]);
+//    printf("CONFIG0 = 0x%08x\n", val);
+
 /////////////////////////////////// 
 // //void write_sprint(struct esp_device *espdev, unsigned sprint_enable, unsigned sprint_tokens, unsigned sprint_duration)
 // //{
@@ -722,8 +813,10 @@ void write_config3(struct esp_device *espdev, unsigned pm_network)
 // NOTE: These are written to the *router* CSR space (noc_domain_socket CSRs),
 // not the token_pm CSR space.
 
-// addr[6:2] = 20 => byte offset = 20 << 2 = 0x50
-#define SPRINT_CFG_REG  (16 << 2) //20 * 4 
+// CSR addresses must be in the 0x180-0x1FF range (bits [8:7] = "11")
+// addr[6:2] selects the CSR register (0-31)
+// SPRINT_CFG_ADDR = 16, so byte offset = 0x180 + (16 << 2) = 0x1C0
+#define SPRINT_CFG_REG  (0x180 + (16 << 2))  // = 0x1C0 
 
 // [0] sprint_enable
 // [7:1] sprint_tokens (7 bits)
@@ -747,8 +840,8 @@ static inline void write_sprint_cfg(struct esp_device *router_dev,
 }
 
 
-// addr[6:2] = 21 => byte offset = 21 << 2 = 0x54
-#define THERMAL_CFG_REG (31 << 2)
+// THERMAL_CFG_ADDR = 31, so byte offset = 0x180 + (31 << 2) = 0x1FC
+#define THERMAL_CFG_REG (0x180 + (31 << 2))  // = 0x1FC
 
 // THERMAL_CFG layout (23 bits total):
 // [9:0]   cycle_threshold (10 bits)
@@ -772,7 +865,71 @@ static inline void write_thermal_cfg(struct esp_device *router_dev,
               encode_thermal_cfg(sprint_offset, percent_threshold, cycle_threshold));
 }
 
+// Read router/NoC CSRs (sprint and thermal config)
+static inline unsigned read_sprint_cfg(struct esp_device *router_dev)
+{
+    return ioread32(router_dev, SPRINT_CFG_REG);
+}
 
+static inline unsigned read_thermal_cfg(struct esp_device *router_dev)
+{
+    return ioread32(router_dev, THERMAL_CFG_REG);
+}
+
+// Verification functions for sprint and thermal CSRs
+void verify_sprint_cfg(struct esp_device *router_dev, const char *tile_name,
+                       unsigned expected_sprint_enable, unsigned expected_sprint_tokens, 
+                       unsigned expected_sprint_duration)
+{
+    unsigned read_val = read_sprint_cfg(router_dev);
+    unsigned read_enable = (read_val >> 0) & 0x1;
+    unsigned read_tokens = (read_val >> 1) & 0x7F;
+    unsigned read_duration = (read_val >> 8) & 0xFFFF;
+    
+    printf("  %s SPRINT_CFG: 0x%08x\n", tile_name, read_val);
+    printf("    sprint_enable: %u (expected %u) %s\n", read_enable, expected_sprint_enable,
+           (read_enable == expected_sprint_enable) ? "OK" : "FAIL");
+    printf("    sprint_tokens: %u (expected %u) %s\n", read_tokens, expected_sprint_tokens,
+           (read_tokens == expected_sprint_tokens) ? "OK" : "FAIL");
+    printf("    sprint_duration: %u (expected %u) %s\n", read_duration, expected_sprint_duration,
+           (read_duration == expected_sprint_duration) ? "OK" : "FAIL");
+}
+
+void verify_thermal_cfg(struct esp_device *router_dev, const char *tile_name,
+                        unsigned expected_cycle_threshold, unsigned expected_percent_threshold,
+                        unsigned expected_sprint_offset)
+{
+    unsigned read_val = read_thermal_cfg(router_dev);
+    unsigned read_cycle_threshold = (read_val >> 0) & 0x3FF;
+    unsigned read_percent_threshold = (read_val >> 10) & 0x7F;
+    unsigned read_sprint_offset = (read_val >> 17) & 0x3F;
+    
+    printf("  %s THERMAL_CFG: 0x%08x\n", tile_name, read_val);
+    printf("    cycle_threshold: %u (expected %u) %s\n", read_cycle_threshold, expected_cycle_threshold,
+           (read_cycle_threshold == expected_cycle_threshold) ? "OK" : "FAIL");
+    printf("    percent_threshold: %u (expected %u) %s\n", read_percent_threshold, expected_percent_threshold,
+           (read_percent_threshold == expected_percent_threshold) ? "OK" : "FAIL");
+    printf("    sprint_offset: %u (expected %u) %s\n", read_sprint_offset, expected_sprint_offset,
+           (read_sprint_offset == expected_sprint_offset) ? "OK" : "FAIL");
+}
+
+// Simple debug function: print all CSR values for a tile (no comparison)
+void dump_token_pm_csrs(struct esp_device *espdev, const char *tile_name)
+{
+    printf("\n=== %s Token PM CSRs ===\n", tile_name);
+    printf("  CONFIG0: 0x%08x\n", read_config0(espdev));
+    printf("  CONFIG1: 0x%08x\n", read_config1(espdev));
+    printf("  CONFIG2: 0x%08x\n", read_config2(espdev));
+    printf("  CONFIG3: 0x%08x\n", read_config3(espdev));
+    printf("  STATUS0: 0x%08x\n", read_status0(espdev));
+}
+
+void dump_router_csrs(struct esp_device *router_dev, const char *tile_name)
+{
+    printf("\n=== %s Router/NoC CSRs ===\n", tile_name);
+    printf("  SPRINT_CFG: 0x%08x\n", read_sprint_cfg(router_dev));
+    printf("  THERMAL_CFG: 0x%08x\n", read_thermal_cfg(router_dev));
+}
 
 ///////////////////////////////////
 

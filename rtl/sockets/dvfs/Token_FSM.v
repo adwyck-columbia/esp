@@ -285,7 +285,7 @@ module Token_FSM (
         LUT_next <= LUT;
         if (LUT_write[17] == 1) LUT_next[LUT_write[7:0]] <= LUT_write[15:8];
 
-        if (token_counter_override[7] == 1) tokens_next_calc = $signed(token_counter_override[6:0]);
+        if (token_counter_override[7] == 1) tokens_next = $signed(token_counter_override[6:0]);
 
 
         if (tokens_next[6] == 0)  //posivite

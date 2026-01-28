@@ -501,9 +501,20 @@ int main(int argc, char *argv[])
     espdev = &espdevs[0];
     write_config0(espdev, enable_const, max_tokens_EXP0[0], refresh_rate_min_const[0],
                   refresh_rate_max_const[0]);
+    // Verify CSR write
+    printf("\nVerifying CSR writes for tile 0:\n");
+    verify_config0(espdev, "Tile0", enable_const, max_tokens_EXP0[0], 
+                   refresh_rate_min_const[0], refresh_rate_max_const[0]);
+    verify_config2(espdev, "Tile0", neighbors_id_const_EXP0[0]);
+    
     espdev = &espdevs[2];
     write_config0(espdev, enable_const, max_tokens_EXP0[2], refresh_rate_min_const[2],
                   refresh_rate_max_const[2]);
+    // Verify CSR write
+    printf("\nVerifying CSR writes for tile 2:\n");
+    verify_config0(espdev, "Tile2", enable_const, max_tokens_EXP0[2], 
+                   refresh_rate_min_const[2], refresh_rate_max_const[2]);
+    verify_config2(espdev, "Tile2", neighbors_id_const_EXP0[2]);
 
     wait_for_token_next(&espdevs[0], 15);
     wait_for_token_next(&espdevs[2], 15);
@@ -603,6 +614,47 @@ int main(int argc, char *argv[])
                       refresh_rate_max_const[i]);
     }
 
+    // ========== CSR VERIFICATION BLOCK ==========
+    // Verify that CSR writes were successful by reading them back
+    printf("\n=== CSR Address Map ===\n");
+    printf("CSR_BASE_ADDR = 0x%08x\n", CSR_BASE_ADDR);
+    printf("CSR_TILE_OFFSET = 0x%x\n", CSR_TILE_OFFSET);
+    printf("CSR_TOKEN_PM_OFFSET = 0x%x\n", CSR_TOKEN_PM_OFFSET);
+    printf("SPRINT_CFG_REG offset = 0x%x\n", SPRINT_CFG_REG);
+    printf("THERMAL_CFG_REG offset = 0x%x\n", THERMAL_CFG_REG);
+    
+    printf("\n=== Verifying Token PM CSR Writes ===\n");
+    for (i = 0; i < N_ACC; i++) {
+        char tile_name[16];
+        sprintf(tile_name, "Tile%d", i);
+        
+        printf("\n--- %s (tile_id=%d) ---\n", tile_name, acc_tile_ids[i]);
+        printf("  Token PM CSR addr: 0x%08x\n", espdevs[i].addr);
+        printf("  Router CSR addr:   0x%08x\n", routerdevs[i].addr);
+        
+        // Read back and print token PM CSRs
+        dump_token_pm_csrs(&espdevs[i], tile_name);
+        
+        // Verify config0 fields
+        verify_config0(&espdevs[i], tile_name, enable_const, max_tokens[i], 
+                       refresh_rate_min_const[i], refresh_rate_max_const[i]);
+        
+        // Verify config2 (neighbors_id)
+        verify_config2(&espdevs[i], tile_name, neighbors_id_const[i]);
+    }
+
+    // Verify Router/NoC CSRs (sprint and thermal config)
+    printf("\n=== Verifying Router/NoC CSR Writes ===\n");
+    for (i = 0; i < N_ACC; i++) {
+        char tile_name[16];
+        sprintf(tile_name, "Tile%d", i);
+        
+        // Read back and print router CSRs
+        dump_router_csrs(&routerdevs[i], tile_name);
+    }
+    printf("=== End CSR Verification ===\n\n");
+    // ========== END CSR VERIFICATION BLOCK ==========
+
     ////FFT setup/////
     #ifdef DEBUG
     printf("Setting up FFT accelerators\n");
@@ -672,9 +724,14 @@ int main(int argc, char *argv[])
     espdev = &espdevs[1];
     struct esp_device *router_tile_1 = &routerdevs[1]; // pranavi
     write_sprint_cfg(router_tile_1, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
-    printf("SPRINT_CFG t0 = 0x%x\n", ioread32(router_tile_1, SPRINT_CFG_REG));
+    printf("SPRINT_CFG Tile1: wrote 0x%08x, read back 0x%08x\n", 
+           encode_sprint_cfg(15, 5, 1), ioread32(router_tile_1, SPRINT_CFG_REG));
+    verify_sprint_cfg(router_tile_1, "Tile1", 1, 5, 15);  // enable=1, tokens=5, duration=15
+    
     write_thermal_cfg(router_tile_1, 20, 40, 20);
-    printf("THERMAL_CFG t0 = 0x%x\n", ioread32(router_tile_1, THERMAL_CFG_REG));
+    printf("THERMAL_CFG Tile1: wrote 0x%08x, read back 0x%08x\n",
+           encode_thermal_cfg(20, 40, 20), ioread32(router_tile_1, THERMAL_CFG_REG));
+    verify_thermal_cfg(router_tile_1, "Tile1", 20, 40, 20);  // cycle=20, percent=40, offset=20
     //struct esp_device *sprint_tile_1 = &espdevs[1]; //SPRINT
     //write_sprint(sprint_tile_1, 1, 5, 15); //SPRINT
     write_config1(espdev, activity_const, random_rate_const, 0, 0); 
@@ -684,9 +741,14 @@ int main(int argc, char *argv[])
     iowrite32(dev_v0, CMD_REG, CMD_MASK_START);
     espdev = &espdevs[2];
     struct esp_device *router_tile_2 = &routerdevs[2]; // pranavi
-    //write_sprint_cfg(router_tile_2, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
-    //struct esp_device *sprint_tile_2 = &espdevs[2]; //SPRINT
-    //write_sprint(sprint_tile_2, 1, 5, 15); //SPRINT
+    write_sprint_cfg(router_tile_2, 15, 5, 1);    // duration=15, tokens=5, enable=1
+    printf("SPRINT_CFG Tile2: wrote 0x%08x, read back 0x%08x\n",
+           encode_sprint_cfg(15, 5, 1), ioread32(router_tile_2, SPRINT_CFG_REG));
+    verify_sprint_cfg(router_tile_2, "Tile2", 1, 5, 15);
+    write_thermal_cfg(router_tile_2, 20, 40, 20);
+    printf("THERMAL_CFG Tile2: wrote 0x%08x, read back 0x%08x\n",
+           encode_thermal_cfg(20, 40, 20), ioread32(router_tile_2, THERMAL_CFG_REG));
+    verify_thermal_cfg(router_tile_2, "Tile2", 20, 40, 20);
     write_config1(espdev, activity_const, random_rate_const, 0, 0);
     #ifdef DEBUG
     printf("Started V0\n");
@@ -694,9 +756,14 @@ int main(int argc, char *argv[])
     iowrite32(dev_f1, CMD_REG, CMD_MASK_START);
     espdev = &espdevs[3];
     struct esp_device *router_tile_3 = &routerdevs[3]; // pranavi
-    //write_sprint_cfg(router_tile_3, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
-    //struct esp_device *sprint_tile_3 = &espdevs[3]; //SPRINT
-    //write_sprint(sprint_tile_3, 1, 5, 15); //SPRINT
+    write_sprint_cfg(router_tile_3, 15, 5, 1);    // duration=15, tokens=5, enable=1
+    printf("SPRINT_CFG Tile3: wrote 0x%08x, read back 0x%08x\n",
+           encode_sprint_cfg(15, 5, 1), ioread32(router_tile_3, SPRINT_CFG_REG));
+    verify_sprint_cfg(router_tile_3, "Tile3", 1, 5, 15);
+    write_thermal_cfg(router_tile_3, 20, 40, 20);
+    printf("THERMAL_CFG Tile3: wrote 0x%08x, read back 0x%08x\n",
+           encode_thermal_cfg(20, 40, 20), ioread32(router_tile_3, THERMAL_CFG_REG));
+    verify_thermal_cfg(router_tile_3, "Tile3", 20, 40, 20);
     write_config1(espdev, activity_const, random_rate_const, 0, 0);
     #ifdef DEBUG
     printf("Started F1\n");
@@ -704,9 +771,14 @@ int main(int argc, char *argv[])
     iowrite32(dev_v1, CMD_REG, CMD_MASK_START);
     espdev = &espdevs[4];
     struct esp_device *router_tile_4 = &routerdevs[4]; // pranavi
-   // write_sprint_cfg(router_tile_4, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
-    //struct esp_device *sprint_tile_4 = &espdevs[4]; //SPRINT
-    //write_sprint(sprint_tile_4, 1, 15, 15); //SPRINT
+    write_sprint_cfg(router_tile_4, 15, 5, 1);    // duration=15, tokens=5, enable=1
+    printf("SPRINT_CFG Tile4: wrote 0x%08x, read back 0x%08x\n",
+           encode_sprint_cfg(15, 5, 1), ioread32(router_tile_4, SPRINT_CFG_REG));
+    verify_sprint_cfg(router_tile_4, "Tile4", 1, 5, 15);
+    write_thermal_cfg(router_tile_4, 20, 40, 20);
+    printf("THERMAL_CFG Tile4: wrote 0x%08x, read back 0x%08x\n",
+           encode_thermal_cfg(20, 40, 20), ioread32(router_tile_4, THERMAL_CFG_REG));
+    verify_thermal_cfg(router_tile_4, "Tile4", 20, 40, 20);
     write_config1(espdev, activity_const, random_rate_const, 0, 0);
     #ifdef DEBUG
     printf("Started V1\n");
@@ -714,9 +786,14 @@ int main(int argc, char *argv[])
     iowrite32(dev_f2, CMD_REG, CMD_MASK_START);
     espdev = &espdevs[5];
     struct esp_device *router_tile_5 = &routerdevs[5]; // pranavi
-    //write_sprint_cfg(router_tile_5, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
-    //struct esp_device *sprint_tile_5 = &espdevs[5]; //SPRINT
-    //write_sprint(sprint_tile_5, 1, 15, 15); //SPRINT
+    write_sprint_cfg(router_tile_5, 15, 5, 1);    // duration=15, tokens=5, enable=1
+    printf("SPRINT_CFG Tile5: wrote 0x%08x, read back 0x%08x\n",
+           encode_sprint_cfg(15, 5, 1), ioread32(router_tile_5, SPRINT_CFG_REG));
+    verify_sprint_cfg(router_tile_5, "Tile5", 1, 5, 15);
+    write_thermal_cfg(router_tile_5, 20, 40, 20);
+    printf("THERMAL_CFG Tile5: wrote 0x%08x, read back 0x%08x\n",
+           encode_thermal_cfg(20, 40, 20), ioread32(router_tile_5, THERMAL_CFG_REG));
+    verify_thermal_cfg(router_tile_5, "Tile5", 20, 40, 20);
     write_config1(espdev, activity_const, random_rate_const, 0, 0);
     #ifdef DEBUG
     printf("Started F2\n");
@@ -737,9 +814,14 @@ int main(int argc, char *argv[])
     espdev = &espdevs[0]; // NVDLA tile
     struct esp_device *router_tile_0 = &routerdevs[0]; // pranavi
     write_sprint_cfg(router_tile_0, 15, 5, 1);    // duration=15, tokens=5, enable=1 //pranavi
-    printf("SPRINT_CFG t0 = 0x%x\n", ioread32(router_tile_0, SPRINT_CFG_REG));
+    printf("SPRINT_CFG Tile0: wrote 0x%08x, read back 0x%08x\n", 
+           encode_sprint_cfg(15, 5, 1), ioread32(router_tile_0, SPRINT_CFG_REG));
+    verify_sprint_cfg(router_tile_0, "Tile0", 1, 5, 15);  // enable=1, tokens=5, duration=15
+    
     write_thermal_cfg(router_tile_0, 20, 40, 20);
-    printf("THERMAL_CFG t0 = 0x%x\n", ioread32(router_tile_0, THERMAL_CFG_REG));
+    printf("THERMAL_CFG Tile0: wrote 0x%08x, read back 0x%08x\n",
+           encode_thermal_cfg(20, 40, 20), ioread32(router_tile_0, THERMAL_CFG_REG));
+    verify_thermal_cfg(router_tile_0, "Tile0", 20, 40, 20);  // cycle=20, percent=40, offset=20
     //struct esp_device *sprint_tile_0 = &espdevs[0]; //SPRINT
     //write_sprint(sprint_tile_0, 1, 5, 15); //SPRINT
     write_config1(espdev, activity_const, random_rate_const_0, 0, 0); // For NVDLA the activity flag is toggled manually
